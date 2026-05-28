@@ -197,24 +197,19 @@ async function guardarRelatoPase(id) {
 
   const consumoTexto = consumo === 'no' ? '✅ No consumió' : consumo === 'si' ? '🔴 SÍ CONSUMIÓ' : '⚠️ Sospecha de consumo';
 
-  const notaCompleta = `RELATO DE PASE — ${fecha}${hora ? ' ' + hora : ''}
-Consumo: ${consumoTexto}
-Registrado por: ${quien || 'Terapeuta'}
-
-RELATO DEL PACIENTE:
-${relato}
-${positivo ? '
-ASPECTOS POSITIVOS:
-' + positivo : ''}
-${negativo ? '
-ASPECTOS NEGATIVOS / ERRORES:
-' + negativo : ''}
-${reflexion ? '
-REFLEXIÓN DEL PACIENTE:
-' + reflexion : ''}
-${obs ? '
-OBSERVACIÓN DEL TERAPEUTA:
-' + obs : ''}`;
+  const partes = [
+    'RELATO DE PASE — ' + fecha + (hora ? ' ' + hora : ''),
+    'Consumo: ' + consumoTexto,
+    'Registrado por: ' + (quien || 'Terapeuta'),
+    '',
+    'RELATO DEL PACIENTE:',
+    relato,
+    positivo ? ('\nASPECTOS POSITIVOS:\n' + positivo) : '',
+    negativo ? ('\nASPECTOS NEGATIVOS / ERRORES:\n' + negativo) : '',
+    reflexion ? ('\nREFLEXIÓN DEL PACIENTE:\n' + reflexion) : '',
+    obs ? ('\nOBSERVACIÓN DEL TERAPEUTA:\n' + obs) : ''
+  ];
+  const notaCompleta = partes.filter(p => p !== '').join('\n');
 
   try {
     await updatePase(id, { estado: 'completado', notas: notaCompleta });
