@@ -32,8 +32,8 @@ async function verFarmacologiaPaciente(pacienteId, nombre) {
   setTopbarActions(`
     <button class="btn" onclick="renderFarmacologia()"><i class="fa-solid fa-arrow-left"></i> Volver</button>
     <button class="btn btn-primary" onclick="modalNuevoFarmaco('${pacienteId}')"><i class="fa-solid fa-plus"></i> Agregar fármaco</button>
-    <button class="btn btn-sm" onclick="modalPrestamo('${pacienteId}','${nombre}')">💊 Préstamo</button>
-    <button class="btn btn-sm" onclick="verPrestamosPaciente('${pacienteId}','${nombre}')"><i class="fa-solid fa-clock-rotate-left"></i> Historial</button>
+    <button class="btn" onclick="modalPrestamo('${pacienteId}','${nombre}')">💊 Préstamo</button>
+    <button class="btn" onclick="verPrestamosPaciente('${pacienteId}','${nombre}')">Ver préstamos</button>
   `);
 
   const farmacos = await getFarmacos(pacienteId);
@@ -209,23 +209,14 @@ async function guardarFarmaco(pacienteId) {
 }
 
 function modalIngresarStock(farmacoId, nombre, stockActual, pacienteId) {
-  openModal(`📦 Ingresar stock — ${nombre}`, `
+  openModal(`Ingresar stock — ${nombre}`, `
     <div class="modal-form">
-      <div style="background:var(--surface2);border-radius:var(--radius);padding:10px 14px;margin-bottom:1rem;display:flex;justify-content:space-between">
-        <span style="font-size:13px;color:var(--text2)">Stock actual</span>
-        <span style="font-weight:700;font-size:16px">${stockActual} unidades</span>
-      </div>
+      <p style="color:var(--text2);margin-bottom:1rem">Stock actual: <strong>${stockActual} unidades</strong></p>
       <div class="form-row">
-        <div class="form-group"><label>Unidades a agregar *</label>
-          <input type="number" id="st-unidades" placeholder="0" min="0.25" step="0.25">
-        </div>
-        <div class="form-group"><label>📅 Fecha de ingreso *</label>
-          <input type="date" id="st-fecha" value="${today()}">
-        </div>
+        <div class="form-group"><label>Unidades a agregar *</label><input type="number" id="st-unidades" placeholder="30" min="1"></div>
+        <div class="form-group"><label>Fecha ingreso</label><input type="date" id="st-fecha" value="${today()}"></div>
       </div>
-      <div class="form-row one"><div class="form-group"><label>Descripción</label>
-        <input type="text" id="st-notas" placeholder="Ej: Compra del 27/05, trae familia...">
-      </div></div>
+      <div class="form-row one"><div class="form-group"><label>Notas</label><input type="text" id="st-notas" placeholder="Ej: compra del 15/05"></div></div>
     </div>
   `, `
     <button class="btn" onclick="closeModal()">Cancelar</button>
@@ -709,75 +700,4 @@ async function registrarDevolucion(prestamoId, pacienteId, nombre) {
   } catch(e) {
     showToast('Error al registrar devolución', 'error');
   }
-}
-
-async function verHistorialFarmacos(pacienteId, nombre) {
-  const { data: ingresos } = await db.from('farmacos_ingresos')
-    .select('*, farmacos(nombre)')
-    .eq('paciente_id', pacienteId)
-    .order('fecha', { ascending: false })
-    .order('created_at', { ascending: false });
-
-  const { data: sos } = await db.from('sos_usos')
-    .select('*, farmacos(nombre)')
-    .eq('paciente_id', pacienteId)
-    .order('created_at', { ascending: false });
-
-  const { data: prestamos } = await db.from('prestamos_farmacos')
-    .select('*, pacientes!prestamos_farmacos_receptor_id_fkey(nombre)')
-    .eq('prestador_id', pacienteId)
-    .order('fecha', { ascending: false });
-
-  openModal(`📋 Historial farmacológico — ${nombre}`, `
-    <div class="modal-form">
-      <div style="margin-bottom:1rem">
-        <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;margin-bottom:8px">Ingresos de stock</div>
-        ${!ingresos?.length ? '<p style="color:var(--text3);font-size:13px">Sin ingresos registrados</p>' :
-          `<div class="table-wrap"><table>
-            <thead><tr><th>Fecha</th><th>Medicamento</th><th>Unidades</th><th>Descripción</th></tr></thead>
-            <tbody>
-              ${ingresos.map(i => `<tr>
-                <td style="font-weight:500">${fmtDate(i.fecha)}</td>
-                <td>${i.farmacos?.nombre || '—'}</td>
-                <td style="color:var(--success);font-weight:600">+${i.unidades}</td>
-                <td style="color:var(--text2);font-size:12px">${i.notas || '—'}</td>
-              </tr>`).join('')}
-            </tbody>
-          </table></div>`}
-      </div>
-
-      ${sos?.length ? `
-      <div style="margin-bottom:1rem">
-        <div style="font-size:12px;font-weight:600;color:var(--danger);text-transform:uppercase;margin-bottom:8px">⚠️ Usos SOS</div>
-        <div class="table-wrap"><table>
-          <thead><tr><th>Fecha</th><th>Medicamento</th><th>Motivo</th><th>Administrado por</th></tr></thead>
-          <tbody>
-            ${sos.map(s => `<tr>
-              <td>${fmtDate(s.created_at?.split('T')[0])}</td>
-              <td>${s.farmacos?.nombre || '—'}</td>
-              <td style="color:var(--text2);font-size:12px">${s.motivo || '—'}</td>
-              <td style="color:var(--text3);font-size:12px">${s.administrado_por || '—'}</td>
-            </tr>`).join('')}
-          </tbody>
-        </table></div>
-      </div>` : ''}
-
-      ${prestamos?.length ? `
-      <div>
-        <div style="font-size:12px;font-weight:600;color:var(--warning);text-transform:uppercase;margin-bottom:8px">💊 Préstamos realizados</div>
-        <div class="table-wrap"><table>
-          <thead><tr><th>Fecha</th><th>Medicamento</th><th>Cantidad</th><th>A quién</th><th>Estado</th></tr></thead>
-          <tbody>
-            ${prestamos.map(p => `<tr>
-              <td>${fmtDate(p.fecha)}</td>
-              <td>${p.farmaco_nombre}</td>
-              <td>${p.cantidad}</td>
-              <td>${p.receptor?.nombre || '—'}</td>
-              <td>${p.devuelto ? '<span class="badge badge-success">Devuelto</span>' : '<span class="badge badge-warning">Pendiente</span>'}</td>
-            </tr>`).join('')}
-          </tbody>
-        </table></div>
-      </div>` : ''}
-    </div>
-  `);
 }

@@ -14,5 +14,3 @@ CREATE TABLE IF NOT EXISTS tareas (
 
 ALTER TABLE tareas ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "open" ON tareas FOR ALL USING (true);
--- Agregar columna notas a tareas si no existe
-ALTER TABLE tareas ADD COLUMN IF NOT EXISTS notas text;

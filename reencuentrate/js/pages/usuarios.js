@@ -9,10 +9,6 @@ const TODOS_PERMISOS = [
   { key: 'mascota', label: 'Mascota' },
   { key: 'finanzas', label: 'Finanzas' },
   { key: 'equipo', label: 'Equipo' },
-  { key: 'progresion', label: 'Progresión' },
-  { key: 'grupo_alto', label: 'Grupo Alto' },
-  { key: 'informes', label: 'Informes clínicos' },
-  { key: 'tareas', label: 'Tareas' },
 ];
 
 async function renderUsuarios() {
@@ -103,61 +99,4 @@ async function desactivarUsuario(id) {
     showToast('Usuario desactivado');
     renderUsuarios();
   } catch(e) { showToast('Error', 'error'); }
-}
-
-async function modalEditarUsuario(id, nombre) {
-  const { data: usuario } = await db.from('usuarios').select('*').eq('id', id).single();
-  const passActual = usuario?.password_hash?.replace('rc2024_', '') || '';
-  const permsObj = usuario?.permisos || {};
-
-  openModal(`Editar usuario — ${nombre}`, `
-    <div class="modal-form">
-      <div class="form-row">
-        <div class="form-group"><label>Nombre</label>
-          <input type="text" id="eu-nombre" value="${nombre}">
-        </div>
-        <div class="form-group"><label>Contraseña actual</label>
-          <input type="text" id="eu-pass-actual" value="${passActual}" readonly 
-            style="background:var(--surface2);color:var(--text2)">
-        </div>
-      </div>
-      <div class="form-row one">
-        <div class="form-group"><label>Nueva contraseña (dejar vacío para mantener la actual)</label>
-          <input type="text" id="eu-pass" placeholder="Escribe aquí para cambiar la contraseña">
-        </div>
-      </div>
-      <div style="margin-top:4px">
-        <label style="font-size:13px;font-weight:500;color:var(--text2);display:block;margin-bottom:10px">Permisos</label>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          ${TODOS_PERMISOS.map(p => `
-            <label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer">
-              <input type="checkbox" name="eu-perm" value="${p.key}" ${permsObj[p.key] ? 'checked' : ''} style="width:15px;height:15px">
-              <span style="font-size:13px">${p.label}</span>
-            </label>`).join('')}
-        </div>
-      </div>
-    </div>
-  `, `
-    <button class="btn" onclick="closeModal()">Cancelar</button>
-    <button class="btn btn-primary" onclick="guardarEdicionUsuario('${id}')">Guardar cambios</button>
-  `);
-}
-
-async function guardarEdicionUsuario(id) {
-  const nombre = document.getElementById('eu-nombre').value.trim();
-  const pass = document.getElementById('eu-pass').value;
-  if (!nombre) { showToast('Nombre es obligatorio', 'error'); return; }
-
-  const permisos = {};
-  document.querySelectorAll('input[name="eu-perm"]:checked').forEach(cb => { permisos[cb.value] = true; });
-
-  const payload = { nombre, permisos };
-  if (pass) payload.password_hash = 'rc2024_' + pass;
-
-  try {
-    await updateUsuario(id, payload);
-    closeModal();
-    showToast('Usuario actualizado ✅', 'success');
-    renderUsuarios();
-  } catch(e) { showToast('Error al guardar', 'error'); }
 }

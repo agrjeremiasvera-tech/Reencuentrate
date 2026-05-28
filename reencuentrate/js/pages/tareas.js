@@ -166,29 +166,3 @@ async function verPendientesAnteriores() {
     </div>
   `);
 }
-
-function modalNoPuedo(id, titulo) {
-  openModal(`⚠️ No puedo completar — ${titulo}`, `
-    <div class="modal-form">
-      <div class="form-row one"><div class="form-group"><label>Explicación *</label>
-        <textarea id="np-razon" placeholder="Explica por qué no puedes completar esta tarea..." style="min-height:100px"></textarea>
-      </div></div>
-    </div>
-  `, `
-    <button class="btn" onclick="closeModal()">Cancelar</button>
-    <button class="btn btn-danger" onclick="registrarNoPuedo('${id}')">Enviar explicación</button>
-  `);
-}
-
-async function registrarNoPuedo(id) {
-  const razon = document.getElementById('np-razon').value.trim();
-  if (!razon) { showToast('Escribe una explicación', 'error'); return; }
-  const { error } = await db.from('tareas').update({
-    notas: `NO COMPLETADA por ${currentUser?.nombre} — ${razon}`,
-    completada: false
-  }).eq('id', id);
-  if (error) { showToast('Error', 'error'); return; }
-  closeModal();
-  showToast('Explicación enviada ✅', 'success');
-  renderTareas();
-}
