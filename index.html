@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reencuéntrate — Centro de Rehabilitación</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen" class="login-screen">
+  <div class="login-bg"></div>
+  <div class="login-card">
+    <div class="login-logo">
+      <img src="assets/logo.png" alt="Reencuéntrate" style="width:200px;margin:0 auto 1.5rem;display:block">
+    </div>
+    <div id="login-error" class="login-error" style="display:none"></div>
+    <div class="form-group">
+      <label>Usuario</label>
+      <input type="text" id="login-user" placeholder="Tu nombre de usuario" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label>Contraseña</label>
+      <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn-login" onclick="handleLogin()">
+      <span id="login-text">Ingresar</span>
+      <i class="fa-solid fa-arrow-right"></i>
+    </button>
+    <p class="login-footer">Sistema de gestión interno · v2.0</p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="app" style="display:none">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div style="text-align:center;padding:0.5rem 0"><span class="logo-icon" style="width:48px;height:48px;font-size:22px;margin:0 auto"><i class="fa-solid fa-leaf"></i></span><div style="color:white;font-family:var(--font-serif);font-size:15px;margin-top:8px">Reencuéntrate</div></div>
+      <button class="sidebar-close" onclick="toggleSidebar()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="user-avatar">A</div>
+        <div>
+          <div class="user-name" id="user-name-label">Usuario</div>
+          <button class="logout-btn" onclick="handleLogout()">Cerrar sesión</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <button class="menu-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+      <div class="topbar-title" id="page-title">Dashboard</div>
+      <div class="topbar-actions" id="topbar-actions"></div>
+    </header>
+    <div class="content" id="content"></div>
+  </main>
+</div>
+
+<!-- MODAL -->
+<div id="modal-overlay" class="modal-overlay" onclick="closeModal()">
+  <div class="modal-box" id="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3 id="modal-title"></h3>
+      <button onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/auth2.js"></script>
+<script src="js/db2.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/pages/dashboard.js"></script>
+<script src="js/pages/pacientes.js"></script>
+<script src="js/pages/farmacologia.js"></script>
+<script src="js/pages/agenda.js"></script>
+<script src="js/pages/inventario.js"></script>
+<script src="js/pages/mascota.js"></script>
+<script src="js/pages/pases.js"></script>
+<script src="js/pages/finanzas.js"></script>
+<script src="js/pages/equipo.js"></script>
+<script src="js/pages/progresion.js"></script>
+<script src="js/pages/tareas.js"></script>
+<script src="js/pages/informes.js"></script>
+<script src="js/pages/grupo_alto.js"></script>
+<script src="js/pages/usuarios.js"></script>
+<script src="js/app2.js"></script>
+</body>
+</html>
